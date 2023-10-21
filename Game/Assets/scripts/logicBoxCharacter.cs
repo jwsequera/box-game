@@ -49,6 +49,11 @@ public class logicBoxCharacter : MonoBehaviour
             Debug.Log("Recibiendo Conazo");
         }
 
+        if (Input.GetKeyDown(KeyCode.B) && !isAnimating){
+            Animating("Receive Uppercut To The Face");
+            Debug.Log("Recibiendo Conazo");
+        }
+
         Debug.Log("Estado de Animacion: " + isAnimating);
     }
 
