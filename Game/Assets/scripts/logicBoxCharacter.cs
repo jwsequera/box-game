@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 public class logicBoxCharacter : MonoBehaviour
 {
@@ -11,10 +12,39 @@ public class logicBoxCharacter : MonoBehaviour
     public float x, y;
     public bool isAnimating;
     public string trigger;
+    private Socket socket;
+
     // Start is called before the first frame update
     void Start()
     {
         anim = GetComponent<Animator>();
+
+        // Crea un socket TCP
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+        // Conecta al servidor
+        socket.Connect("localhost", 5000);
+
+        // Suscribe un observador a la conexión
+        socket.Observable.Subscribe(
+            data => {
+                // Procesa los datos
+                string current_action = data.ToString();
+
+                // Ejecuta la animación correspondiente
+                if (current_action != "None" && !isAnimating){
+                    Animating(current_action);
+                }
+            },
+            error => {
+                // Maneja los errores
+                Debug.Log("Error: " + error);
+            },
+            () => {
+                // Se desconectó del servidor
+                Debug.Log("Desconectado");
+            }
+        );
     }
 
     // Update is called once per frame
@@ -28,39 +58,18 @@ public class logicBoxCharacter : MonoBehaviour
 
         anim.SetFloat("VelX", x);
         anim.SetFloat("VelY", y);
-
-
-        if (Input.GetKeyDown(KeyCode.G) && !isAnimating){
-            Animating("bodyJabCross");
-        }
-
-        if (Input.GetKeyDown(KeyCode.H) && !isAnimating){
-            Animating("ComboPunch");
-            Debug.Log("EJECUTANDO COMBOPUNCH");
-        }
-
-        if (Input.GetKeyDown(KeyCode.L) && !isAnimating){
-            Animating("LeadJab");
-            Debug.Log("EJECUTANDO LeadJab");
-        }
-        
-        if (Input.GetKeyDown(KeyCode.F) && !isAnimating){
-            Animating("ReceivingUppercut");
-            Debug.Log("Recibiendo Conazo");
-        }
-
-        if (Input.GetKeyDown(KeyCode.B) && !isAnimating){
-            Animating("Receive Uppercut To The Face");
-            Debug.Log("Recibiendo Conazo");
-        }
-
-        Debug.Log("Estado de Animacion: " + isAnimating);
     }
 
     private void Animating(string trigger){
-        anim.SetTrigger(trigger);
-        Debug.Log("Ejecutando " + trigger);
-        isAnimating = true;
+        if (trigger == "JabCross"){
+            anim.SetTrigger(trigger);
+            Debug.Log("Ejecutando " + trigger);
+            isAnimating = true;
+        } else
+        {
+            isAnimating = false;
+            
+        }
     }
 
     private void notAnimating(){ //se ejecuta al casi finalizar la animacion de JabCross
