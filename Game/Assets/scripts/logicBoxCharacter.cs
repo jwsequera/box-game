@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class logicBoxCharacter : MonoBehaviour
 {
 
+    Controles controles;
     public float velocidadMovimiento = 5.0f;
     public float velocidadRotacion = 200.0f;
     private Animator anim;
@@ -12,7 +14,7 @@ public class logicBoxCharacter : MonoBehaviour
     public bool isAnimating;
     public bool isBlocking;
     public string trigger;
-    
+    public bool isBot;
 
     // Start is called before the first frame update
     void Start()
@@ -23,11 +25,14 @@ public class logicBoxCharacter : MonoBehaviour
         //desactivamos colliders para evitar falsos golpes
         DesactivarManoDerecha();
         DesactivarManoIzquierda();
+
+        controles = new Controles("localhost", 4321);
     }
 
     // Update is called once per frame
     void Update()
     {
+        UnityEngine.Debug.Log("ESTOY RECIBIENDO LA ACCION: " + controles.action);
         x = Input.GetAxis("Horizontal");
         y = Input.GetAxis("Vertical");
 
@@ -44,36 +49,36 @@ public class logicBoxCharacter : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.G) && !isAnimating){
             Animating("BodyJabCrossMirror"); //golpe con izquierda
-            Debug.Log("EJECUTANDO COMBOPUNCH");
+            UnityEngine.Debug.Log("EJECUTANDO COMBOPUNCH");
         }
 
         if (Input.GetKeyDown(KeyCode.N) && !isAnimating){
             Animating("LeadJabMirror"); //golpe con derecha
-            Debug.Log("EJECUTANDO LeadJab");
+            UnityEngine.Debug.Log("EJECUTANDO LeadJab");
         }
         
-        if (Input.GetKeyDown(KeyCode.B) && !isAnimating){
+        if (controles.action == "LeadJab" && !isAnimating){
             Animating("LeadJab"); //Golpe Con izquierda
-            Debug.Log("EJECUTANDO LeadJabMirror");
+            UnityEngine.Debug.Log("EJECUTANDO LeadJabMirror");
         }
 
         if (Input.GetKeyDown(KeyCode.L) && !isAnimating){
             Blocking();
-            Debug.Log("Bloqueando");
+            UnityEngine.Debug.Log("Bloqueando");
         }
 
-        Debug.Log("Estado de Animacion: " + isAnimating);
+        UnityEngine.Debug.Log("Estado de Animacion: " + isAnimating);
     }
 
     private void Animating(string trigger){
         anim.SetTrigger(trigger);
-        Debug.Log("Ejecutando " + trigger);
+        UnityEngine.Debug.Log("Ejecutando " + trigger);
         isAnimating = true;
     }
 
     private void Blocking(){
         anim.SetTrigger("BodyBlock");
-        Debug.Log("Bloqueando");
+        UnityEngine.Debug.Log("Bloqueando");
         isAnimating = true;
     }
 
