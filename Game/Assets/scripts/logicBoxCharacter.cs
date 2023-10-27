@@ -2,7 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.UI;
 
+namespace Jugador
+{
+    
 public class logicBoxCharacter : MonoBehaviour
 {
 
@@ -15,6 +19,10 @@ public class logicBoxCharacter : MonoBehaviour
     public bool isBlocking;
     public string trigger;
     public bool isBot;
+    public float hp;
+    public float maxHp;
+    public float danoPuno;
+    public Image barraVida;
 
     // Start is called before the first frame update
     void Start()
@@ -22,16 +30,21 @@ public class logicBoxCharacter : MonoBehaviour
         anim = GetComponent<Animator>();
         isAnimating = false;
 
-        //desactivamos colliders para evitar falsos golpes
-        DesactivarManoDerecha();
-        DesactivarManoIzquierda();
-
         controles = new Controles("localhost", 4321);
+        UnityEngine.Debug.Log("hp / maxhp: (Jugador): "+ ( hp / maxHp));
+
+        //variables para recibir dano
+        // maxHp = 1000;
+        // hp = 1000;
+        // danoPuno = 5;
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {   
+
+        ActualizarBarraVida();
+
         UnityEngine.Debug.Log("ESTOY RECIBIENDO LA ACCION: " + controles.action);
         x = Input.GetAxis("Horizontal");
         y = Input.GetAxis("Vertical");
@@ -41,44 +54,58 @@ public class logicBoxCharacter : MonoBehaviour
 
         anim.SetFloat("VelX", x);
         anim.SetFloat("VelY", y);
-
-
-        if (Input.GetKeyDown(KeyCode.H) && !isAnimating){
-            Animating("BodyJabCross"); //golpe con derecha
-        }
-
-        if (Input.GetKeyDown(KeyCode.G) && !isAnimating){
-            Animating("BodyJabCrossMirror"); //golpe con izquierda
-            UnityEngine.Debug.Log("EJECUTANDO COMBOPUNCH");
-        }
-
-        if (Input.GetKeyDown(KeyCode.N) && !isAnimating){
-            Animating("LeadJabMirror"); //golpe con derecha
-            UnityEngine.Debug.Log("EJECUTANDO LeadJab");
-        }
         
-        if (controles.action == "LeadJab" && !isAnimating){
-            Animating("LeadJab"); //Golpe Con izquierda
-            UnityEngine.Debug.Log("EJECUTANDO LeadJabMirror");
+        if ((controles.action == "I_LeadJab" && !isAnimating) || Input.GetKeyDown(KeyCode.B) && !isAnimating){
+            
+            Animating("I_LeadJab"); //Golpe Con izquierda
+            // UnityEngine.Debug.Log("EJECUTANDO jab izq");
         }
 
-        if (Input.GetKeyDown(KeyCode.L) && !isAnimating){
+        else if ((controles.action == "D_LeadJab" && !isAnimating) || Input.GetKeyDown(KeyCode.N) && !isAnimating){
+            
+            Animating("D_LeadJab"); //Golpe Con izquierda
+            // UnityEngine.Debug.Log("EJECUTANDO jab der");
+        }
+
+        else if ((controles.action == "I_UpperCut" && !isAnimating) || Input.GetKeyDown(KeyCode.G) && !isAnimating){
+            
+            Animating("I_UpperCut"); //Golpe Con izquierda
+            // UnityEngine.Debug.Log("EJECUTANDO I_UpperCut");
+        }
+
+        else if ((controles.action == "D_UpperCut" && !isAnimating) || Input.GetKeyDown(KeyCode.H) && !isAnimating){
+            
+            Animating("D_UpperCut"); //Golpe Con izquierda
+            // UnityEngine.Debug.Log("EJECUTANDO I_UpperCut");
+        }
+        else if ((controles.action == "I_Hook" && !isAnimating) || Input.GetKeyDown(KeyCode.J) && !isAnimating){
+            
+            Animating("I_Hook"); //Golpe Con izquierda
+            // UnityEngine.Debug.Log("EJECUTANDO I_Hook");
+        }
+        else if ((controles.action == "D_Hook" && !isAnimating) || Input.GetKeyDown(KeyCode.K) && !isAnimating){
+            
+            Animating("D_Hook"); //Golpe Con izquierda
+            // UnityEngine.Debug.Log("EJECUTANDO D_Hook");
+        }
+
+        else if (Input.GetKeyDown(KeyCode.L) && !isAnimating){
             Blocking();
-            UnityEngine.Debug.Log("Bloqueando");
+            // UnityEngine.Debug.Log("Bloqueando");
         }
 
-        UnityEngine.Debug.Log("Estado de Animacion: " + isAnimating);
+        // UnityEngine.Debug.Log("Estado de Animacion: " + isAnimating);
     }
 
     private void Animating(string trigger){
         anim.SetTrigger(trigger);
-        UnityEngine.Debug.Log("Ejecutando " + trigger);
+        // UnityEngine.Debug.Log("Ejecutando " + trigger);
         isAnimating = true;
     }
 
     private void Blocking(){
         anim.SetTrigger("BodyBlock");
-        UnityEngine.Debug.Log("Bloqueando");
+        // UnityEngine.Debug.Log("Bloqueando");
         isAnimating = true;
     }
 
@@ -90,24 +117,57 @@ public class logicBoxCharacter : MonoBehaviour
         isBlocking = false;
     }
 
-    private void ActivarManoIzquierda(){
-        GameObject objeto = GameObject.FindGameObjectWithTag("ManoIzquierda");
-        Collider collider = objeto.GetComponent<Collider>();
-        collider.enabled = true;
+    private void OnTriggerEnter(Collider other) {
+        if(other.gameObject.tag == "BotManoDerecha"){
+            if(anim != null){
+                isAnimating = true;
+                anim.Play("receiveLeadJab");
+                if (GetRandomNum(0, 11) >= 8){
+                hp -= danoPuno * 2; 
+                }
+                else {
+                    hp -= danoPuno;
+                }
+            }
+        }
+
+        else if(other.gameObject.tag == "BotManoIzquierda"){
+            if(anim != null){
+                isAnimating = true;
+                anim.Play("ReceiveLeadJab");
+                if (GetRandomNum(0, 11) >= 8){
+                
+                // UnityEngine.Debug.Log("Di un Conazo durisimo");
+                hp -= danoPuno * 2; 
+                }
+                else {
+                    // UnityEngine.Debug.Log("Di un conazo suave");
+                    hp -= danoPuno;
+                }
+            }
+        }
+
+        if (hp <= 0){
+            Animating("knockout");
+        }
     }
-    private void DesactivarManoIzquierda(){
-        GameObject objeto = GameObject.FindGameObjectWithTag("ManoIzquierda");
-        Collider collider = objeto.GetComponent<Collider>();
-        collider.enabled = false;
+    private int GetRandomNum(int min, int max){
+        System.Random rand = new();
+        int num = rand.Next(min, max); //creara un random entre 0 y 10
+        
+        return num;
     }
-    private void ActivarManoDerecha(){
-        GameObject objeto = GameObject.FindGameObjectWithTag("ManoDerecha");
-        Collider collider = objeto.GetComponent<Collider>();
-        collider.enabled = true;
+    
+    public void ActualizarBarraVida(){
+        barraVida.fillAmount = hp / maxHp;
+        // UnityEngine.Debug.Log("Barra vida Personaje" + barraVida.fillAmount);
     }
-    private void DesactivarManoDerecha(){
-        GameObject objeto = GameObject.FindGameObjectWithTag("ManoIzquierda");
-        Collider collider = objeto.GetComponent<Collider>();
-        collider.enabled = false;
+
+    public void RecibirMasDano(){
+        danoPuno = danoPuno * 1.1f;
+        hp = hp * 1.1f;
     }
+
+}
+
 }
