@@ -99,17 +99,17 @@ def get_action(landmark):
     if all(guard_conditions):
         current_action = "In guard"
     elif all(left_hook_conditions):
-        current_action = "Left Hook"
+        current_action = "I_Hook"
     elif all(right_hook_conditions):
-        current_action = "Right Hook"
+        current_action = "D_Hook"
     elif all(right_upper_conditions):
-        current_action = "Right Upper"
+        current_action = "D_UpperCut"
     elif all(left_upper_conditions):
-        current_action = "Left Upper"
+        current_action = "I_UpperCut"
     elif all(jab_conditions):
-        current_action = "LeadJab"
+        current_action = "I_LeadJab"
     elif all(cross_conditions):
-        current_action = "Cross"
+        current_action = "D_LeadJab"
     else:
         current_action = "Out of Guard" 
 

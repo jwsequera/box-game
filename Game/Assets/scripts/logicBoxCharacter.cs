@@ -60,31 +60,6 @@ public class logicBoxCharacter : MonoBehaviour
             Animating("I_LeadJab"); //Golpe Con izquierda
             // UnityEngine.Debug.Log("EJECUTANDO jab izq");
         }
-        
-        if (controles.action == "Cross" && !isAnimating){
-            Animating("BodyJabCross"); //Golpe Con Derecha
-            UnityEngine.Debug.Log("EJECUTANDO ");
-        }
-        
-        // if (controles.action == "Left Hook" && !isAnimating){
-        //     Animating("LeadJab"); //Golpe Con izquierda
-        //     UnityEngine.Debug.Log("EJECUTANDO ");
-        // }
-        
-        // if (controles.action == "Right Hook" && !isAnimating){
-        //     Animating("LeadJab"); //Golpe Con izquierda
-        //     UnityEngine.Debug.Log("EJECUTANDO ");
-        // }
-        
-        // if (controles.action == "Left Upper" && !isAnimating){
-        //     Animating("LeadJab"); //Golpe Con izquierda
-        //     UnityEngine.Debug.Log("EJECUTANDO ");
-        // }
-        
-        // if (controles.action == "Right Upper" && !isAnimating){
-        //     Animating("LeadJab"); //Golpe Con izquierda
-        //     UnityEngine.Debug.Log("EJECUTANDO ");
-        // }
 
         else if ((controles.action == "D_LeadJab" && !isAnimating) || Input.GetKeyDown(KeyCode.N) && !isAnimating){
             
