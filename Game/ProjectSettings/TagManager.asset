@@ -6,6 +6,10 @@ TagManager:
   tags:
   - ManoDerecha
   - ManoIzquierda
+  - BotManoDerecha
+  - BotManoIzquierda
+  - Jugador
+  - Bot
   layers:
   - Default
   - TransparentFX
