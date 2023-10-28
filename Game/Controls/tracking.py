@@ -43,7 +43,6 @@ with mp_pose.Pose( static_image_mode = False ) as pose:
         if cv2.waitKey(1) & 0xFF == 27:
             break
 
-
 cap.release()
 cv2.destroyAllWindows()
 

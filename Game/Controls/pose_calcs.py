@@ -1,5 +1,6 @@
 from operations import angle, distance
 
+
 def get_action(landmark):
 
     right_ear_x, right_ear_y = landmark[7].x, landmark[7].y
@@ -10,6 +11,8 @@ def get_action(landmark):
     left_wrist_x, left_wrist_y = landmark[16].x, landmark[16].y
     right_shoulder_x, right_shoulder_y = landmark[11].x, landmark[11].y
     left_shoulder_x, left_shoulder_y = landmark[12].x, landmark[12].y
+    
+    reference_distance = distance(right_ear_x, right_ear_y, left_ear_x, left_ear_y)
 
     guard_conditions = [
         right_wrist_y < 1.5 * right_shoulder_y,
@@ -24,8 +27,7 @@ def get_action(landmark):
         int(angle(right_elbow_x, right_elbow_y, right_shoulder_x, right_shoulder_y)) in range(80, 130),
         int(angle(left_elbow_x, left_elbow_y, left_shoulder_x, left_shoulder_y)) in range(50, 120)
     ]
-
-
+    
     jab_conditions = [
         right_wrist_y < 1.5 * right_shoulder_y,
         right_shoulder_y < right_elbow_y,
@@ -33,8 +35,8 @@ def get_action(landmark):
         int(angle(right_elbow_x, right_elbow_y, right_wrist_x, right_wrist_y)) in range(80, 120),
         int(angle(right_elbow_x, right_elbow_y, right_shoulder_x, right_shoulder_y)) in range(80, 130),
 
-        distance(left_wrist_x, left_wrist_y, left_shoulder_x, left_shoulder_y) < 3*distance(right_ear_x, right_ear_y, left_ear_x, left_ear_y),
-        distance(left_elbow_x, left_elbow_y, left_shoulder_x, left_shoulder_y) < 3*distance(right_ear_x, right_ear_y, left_ear_x, left_ear_y),
+        distance(left_wrist_x, left_wrist_y, left_shoulder_x, left_shoulder_y) < 2*reference_distance,
+        distance(left_elbow_x, left_elbow_y, left_shoulder_x, left_shoulder_y) < 2*reference_distance,
     ]
 
     cross_conditions = [
@@ -44,12 +46,66 @@ def get_action(landmark):
         int(angle(left_elbow_x, left_elbow_y, left_wrist_x, left_wrist_y)) in range(60, 100),
         int(angle(left_elbow_x, left_elbow_y, left_shoulder_x, left_shoulder_y)) in range(50, 120),
 
-        distance(right_wrist_x, right_wrist_y, right_shoulder_x, right_shoulder_y) < 3*distance(right_ear_x, right_ear_y, left_ear_x, left_ear_y),
-        distance(right_elbow_x, right_elbow_y, right_shoulder_x, right_shoulder_y) < 3*distance(right_ear_x, right_ear_y, left_ear_x, left_ear_y),
+        distance(right_wrist_x, right_wrist_y, right_shoulder_x, right_shoulder_y) < 2*reference_distance,
+        distance(right_elbow_x, right_elbow_y, right_shoulder_x, right_shoulder_y) < 2*reference_distance,
     ]
+
+    left_hook_conditions = [
+        int(angle(left_elbow_x, left_elbow_y, left_wrist_x, left_wrist_y)) in range(0, 45),
+        int(angle(left_elbow_x, left_elbow_y, left_shoulder_x, left_shoulder_y)) in range(0, 45),
+
+        distance(left_elbow_x, left_elbow_y, left_shoulder_x, left_shoulder_y) > reference_distance,
+        distance(left_wrist_x, left_wrist_y, right_shoulder_x, right_shoulder_y) < 2*reference_distance
+    ]
+
+    right_hook_conditions = [
+        int(angle(right_elbow_x, right_elbow_y, right_wrist_x, right_wrist_y)) in range(135, 185),
+        int(angle(right_elbow_x, right_elbow_y, right_shoulder_x, right_shoulder_y)) in range(135, 185),
+
+        distance(right_elbow_x, right_elbow_y, right_shoulder_x, right_shoulder_y) > reference_distance,
+        distance(right_wrist_x, right_wrist_y, left_shoulder_x, left_shoulder_y) < 2*reference_distance
+
+    ]
+
+    left_upper_conditions = [
+        right_wrist_y < 1.5 * right_shoulder_y,
+        right_shoulder_y < right_elbow_y,
+
+        int(angle(right_elbow_x, right_elbow_y, right_wrist_x, right_wrist_y)) in range(80, 120),
+        int(angle(left_elbow_x, left_elbow_y, left_wrist_x, left_wrist_y)) in range(60, 100),
+
+        int(angle(right_elbow_x, right_elbow_y, right_shoulder_x, right_shoulder_y)) in range(80, 130),
+        int(angle(left_elbow_x, left_elbow_y, left_shoulder_x, left_shoulder_y)) in range(50, 120),
+
+
+        left_wrist_y - (left_shoulder_y+left_elbow_y)/2 < reference_distance
+    ]
+
+    right_upper_conditions = [
+        left_wrist_y < 1.5 * left_shoulder_y,
+        left_shoulder_y < left_elbow_y,
+
+        int(angle(right_elbow_x, right_elbow_y, right_wrist_x, right_wrist_y)) in range(80, 120),
+        int(angle(left_elbow_x, left_elbow_y, left_wrist_x, left_wrist_y)) in range(60, 100),
+
+        int(angle(right_elbow_x, right_elbow_y, right_shoulder_x, right_shoulder_y)) in range(80, 130),
+        int(angle(left_elbow_x, left_elbow_y, left_shoulder_x, left_shoulder_y)) in range(50, 120),
+        
+        right_wrist_y - (right_shoulder_y+right_elbow_y)/2 < reference_distance
+        
+    ]
+
 
     if all(guard_conditions):
         current_action = "In guard"
+    elif all(left_hook_conditions):
+        current_action = "Left Hook"
+    elif all(right_hook_conditions):
+        current_action = "Right Hook"
+    elif all(right_upper_conditions):
+        current_action = "Right Upper"
+    elif all(left_upper_conditions):
+        current_action = "Left Upper"
     elif all(jab_conditions):
         current_action = "LeadJab"
     elif all(cross_conditions):
@@ -57,34 +113,8 @@ def get_action(landmark):
     else:
         current_action = "Out of Guard" 
 
+    if(current_action not in ["In guard", "Out of Guard"]):
+        print(current_action)
+
     return current_action
 
-    """
-    Old jab conditions     
-    abs(right_shoulder_x - right_elbow_x) < 0.2, 
-    abs(left_shoulder_x - left_elbow_x) < 0.3, 
-
-    abs(right_wrist_x - right_elbow_x) < 0.1, 
-    abs(left_wrist_x - left_elbow_x) < 0.1,
-    
-    abs(left_shoulder_y - left_elbow_y) < 0.125, 
-    abs(left_wrist_y - left_shoulder_y) < 0.125,
-    
-    abs(right_shoulder_y - right_elbow_y) > 0.15,
-    abs(right_wrist_y - right_shoulder_y) + abs(right_wrist_y - right_ear_y) < 0.3
-    """
-
-    """ 
-    Old guard conditions       
-    abs(right_shoulder_x - right_elbow_x) < 0.2, 
-    abs(left_shoulder_x - left_elbow_x) < 0.2, 
-
-    abs(right_wrist_x - right_elbow_x) < 0.1, 
-    abs(left_wrist_x - left_elbow_x) < 0.1,
-    
-    abs(right_shoulder_y - right_elbow_y) > 0.15, 
-    abs(left_shoulder_y - left_elbow_y) > 0.15, 
-    
-    abs(right_wrist_y - right_shoulder_y) + abs(right_wrist_y - right_ear_y) < 0.3, 
-    abs(left_wrist_y - left_shoulder_y) + abs(left_wrist_y - left_ear_y) < 0.3
-    """
