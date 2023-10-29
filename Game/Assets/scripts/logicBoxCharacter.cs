@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using recibirGolpesLogica;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace Jugador
 {
@@ -23,7 +25,12 @@ public class logicBoxCharacter : MonoBehaviour
     public float maxHp;
     public float danoPuno;
     public Image barraVida;
+    private AudioSource punch;
+    private AudioSource bell;
+    private AudioSource KO;
+    public GameObject posBot;
 
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +39,13 @@ public class logicBoxCharacter : MonoBehaviour
 
         controles = new Controles("localhost", 4321);
         UnityEngine.Debug.Log("hp / maxhp: (Jugador): "+ ( hp / maxHp));
+        
+        AudioSource[] audios = GetComponents<AudioSource>();
+        punch = audios[0];
+        bell = audios[1];
+        KO = audios[2];
+
+        bell.Play();
 
         //variables para recibir dano
         // maxHp = 1000;
@@ -94,7 +108,14 @@ public class logicBoxCharacter : MonoBehaviour
             // UnityEngine.Debug.Log("Bloqueando");
         }
 
+        fijarOrientacion();
         // UnityEngine.Debug.Log("Estado de Animacion: " + isAnimating);
+    }
+
+    private void fijarOrientacion(){
+        if (posBot != null) {
+            transform.LookAt(posBot.transform.position);
+        }
     }
 
     private void Animating(string trigger){
@@ -119,6 +140,7 @@ public class logicBoxCharacter : MonoBehaviour
 
     private void OnTriggerEnter(Collider other) {
         if(other.gameObject.tag == "BotManoDerecha"){
+            punch.Play();
             if(anim != null){
                 isAnimating = true;
                 anim.Play("receiveLeadJab");
@@ -132,6 +154,7 @@ public class logicBoxCharacter : MonoBehaviour
         }
 
         else if(other.gameObject.tag == "BotManoIzquierda"){
+            punch.Play();
             if(anim != null){
                 isAnimating = true;
                 anim.Play("ReceiveLeadJab");
@@ -148,6 +171,7 @@ public class logicBoxCharacter : MonoBehaviour
         }
 
         if (hp <= 0){
+            KO.Play();
             Animating("knockout");
         }
     }
@@ -167,6 +191,14 @@ public class logicBoxCharacter : MonoBehaviour
         danoPuno = danoPuno * 1.1f;
         hp = hp * 1.1f;
     }
+    
+    private void OnCollisionEnter(Collision other) {
+        if(other.gameObject.tag == "Bot"){
+            Physics. IgnoreCollision(other.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
+        }
+    }
+
+   
 
 }
 
