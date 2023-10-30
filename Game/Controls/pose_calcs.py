@@ -1,7 +1,11 @@
 from operations import angle, distance
 
+last_action = None
+current_action = None
 
 def get_action(landmark):
+    global last_action
+    global current_action
 
     right_ear_x, right_ear_y = landmark[7].x, landmark[7].y
     left_ear_x, left_ear_y = landmark[8].x, landmark[8].y
@@ -95,6 +99,17 @@ def get_action(landmark):
         
     ]
 
+    body_block_conditions = [
+        right_wrist_y < 1.5 * right_shoulder_y,
+        left_wrist_y < 1.5 * left_shoulder_y,
+
+        right_shoulder_y < right_elbow_y,
+        left_shoulder_y < left_elbow_y,
+
+        distance(right_wrist_x, right_wrist_y, left_wrist_x, left_wrist_y) < 2*reference_distance
+    ]
+
+    last_action = current_action
 
     if all(guard_conditions):
         current_action = "In guard"
@@ -110,10 +125,12 @@ def get_action(landmark):
         current_action = "I_LeadJab"
     elif all(cross_conditions):
         current_action = "D_LeadJab"
+    elif all(body_block_conditions):
+        current_action = "BodyBlock"
     else:
         current_action = "Out of Guard" 
 
-    if(current_action not in ["In guard", "Out of Guard"]):
+    if(current_action not in ["In guard", "Out of Guard"]) and last_action != current_action:
         print(current_action)
 
     return current_action

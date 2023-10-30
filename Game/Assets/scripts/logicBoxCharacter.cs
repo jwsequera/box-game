@@ -89,7 +89,7 @@ public class logicBoxCharacter : MonoBehaviour
             // UnityEngine.Debug.Log("EJECUTANDO D_Hook");
         }
 
-        else if (Input.GetKeyDown(KeyCode.L) && !isAnimating){
+        else if ((controles.action == "BodyBlock" && !isAnimating) || Input.GetKeyDown(KeyCode.L) && !isAnimating){
             Blocking();
             // UnityEngine.Debug.Log("Bloqueando");
         }
