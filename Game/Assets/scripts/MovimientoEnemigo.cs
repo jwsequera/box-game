@@ -15,18 +15,21 @@ public class MovimientoEnemigo : MonoBehaviour
     public float grado;
 
     public GameObject target;
-    public static bool atacando;
+    public  bool atacando;
     public bool isAnimating;
     public bool timer;
+    public GameObject posBot;
+    public bool puedoAnclar;
 
     // Start is called before the first frame update
     void Start()
     {
         //  ani = GetComponent<Animator>();
         //  target = GameObject.Find("boxCharacter");   
+        puedoAnclar = false;
         ani.SetBool("walk", true);
         isAnimating = GameObject.Find("boxCharacter (1)").GetComponent<EnemieBoxCharacterLogic>().anim;
-        InvokeRepeating("SetTimer", 0f, 4f);
+        InvokeRepeating("SetTimer", 0f, 2f);
     }
 
     // Update is called once per frame
@@ -35,6 +38,7 @@ public class MovimientoEnemigo : MonoBehaviour
         isAnimating = GameObject.Find("boxCharacter (1)").GetComponent<EnemieBoxCharacterLogic>().isAnimating;   
         ComportamientoEnemigo();
         AtaqueEnemigo();
+        Debug.Log("Puedo anclar: " + puedoAnclar);
     }
 
     public void ComportamientoEnemigo(){
@@ -56,10 +60,32 @@ public class MovimientoEnemigo : MonoBehaviour
       }
       else {
         ani.SetBool("walk", false);
+        puedoAnclar = true;
+        Anclar();
         atacando = true;
 
         //abajo debe ir la funcion para generar golpes aleatoriamente
       }
+    }
+
+    public void Anclar(){
+        
+      if (puedoAnclar && Vector3.Distance(transform.position, target.transform.position) < 1) {
+        float posX = posBot.transform.position.x;
+        float posZ = posBot.transform.position.z;
+        float posY = transform.position.y;
+
+        transform.position = new Vector3(posX, posY, posZ);
+        transform.LookAt(target.transform); // Agregamos esta línea para fijar la mirada en el target
+      }
+      else {
+        Debug.Log("No puedo anclar");
+        puedoAnclar = false;
+      }
+    }
+
+    public void Desanclar(){
+      puedoAnclar = false;
     }
 
     public void AtaqueEnemigo(){

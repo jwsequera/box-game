@@ -17,6 +17,8 @@ namespace recibirGolpesLogica
     public bool isAnimating;
     public Image barraVida;
     public Spawn systemRespawn; 
+    public AudioSource punch;
+    public AudioSource KO;
 
     public bool isKnockout;
     // Start is called before the first frame update
@@ -25,6 +27,10 @@ namespace recibirGolpesLogica
         isKnockout = false;
         anim = GetComponent<Animator>();
         isAnimating = false;
+
+        AudioSource[] audios = GetComponents<AudioSource>();  
+        punch = audios[0];
+        KO = audios[1];
         // maxHp = 100;
         // hp = 100;
     }
@@ -45,6 +51,7 @@ namespace recibirGolpesLogica
         }
 
         if(other.gameObject.tag == "ManoDerecha"){
+            punch.Play();
             if(anim != null){
                 anim.Play("receiveLeadJab");
                 isAnimating = true;
@@ -58,6 +65,7 @@ namespace recibirGolpesLogica
         }
 
         if(other.gameObject.tag == "ManoIzquierda"){
+            punch.Play();
             if(anim != null){
                 isAnimating = true;
                 anim.Play("receiveLeadJab");
@@ -73,6 +81,7 @@ namespace recibirGolpesLogica
         }
 
     if (hp <= 0){
+        KO.Play();
         anim.SetTrigger("knockout");
     }
     }
